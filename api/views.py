@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from .serializers import UserSerializer,TaskSerializer
 from rest_framework.permissions import IsAuthenticated
 from Task.models import Task
+
 User = get_user_model() 
 
 class UserViewSet(ReadOnlyModelViewSet):
@@ -11,4 +12,5 @@ class UserViewSet(ReadOnlyModelViewSet):
 class TaskViewSet(ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
  
