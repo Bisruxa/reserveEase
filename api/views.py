@@ -4,6 +4,9 @@ from rest_framework.viewsets import ModelViewSet
 from django.contrib.auth import get_user_model
 from Task.models import Task
 from .serializers import UserSerializer, TaskSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+from .filters import TaskFilter
 
 User = get_user_model()
 
@@ -19,3 +22,9 @@ class TaskViewSet(ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
    
+    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
+    filterset_class = TaskFilter
+
+    # Specify default ordering (this is optional, but will help in case no sorting is passed)
+    ordering_fields = ['due_date', 'priority']
+    ordering = ['due_date']  
