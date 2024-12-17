@@ -8,6 +8,8 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['username', 'email']
        
 class TaskSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = Task
-    fields = '__all__'
+    class Meta:
+        model = Task
+        fields = "__all__"
+
+   
