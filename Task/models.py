@@ -33,7 +33,12 @@ class User(AbstractUser):
     def __str__(self):
         return self.email
 
+class Catagory(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    user= models.ForeignKey(User, on_delete=models.CASCADE)
 
+    def __str__(self):  
+        return self.name
 class Task(models.Model):
     LOW = 'Low'
     MEDIUM = 'Medium'
@@ -54,6 +59,7 @@ class Task(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    Catagory = models.ForeignKey(Catagory, on_delete=models.SET_NULL, null=True,blank = True , related_name = 'tasks')
     title = models.CharField(max_length=255)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)

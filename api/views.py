@@ -2,8 +2,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.viewsets import ModelViewSet
 from django.contrib.auth import get_user_model
-from Task.models import Task
-from .serializers import UserSerializer, TaskSerializer
+from Task.models import Task,Catagory
+from .serializers import UserSerializer, TaskSerializer,CatagorySerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from .filters import TaskFilter
@@ -16,7 +16,13 @@ class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-
+class CatagoryViewSet(ModelViewSet):
+    queryset = Catagory.objects.all()
+    serializer_class = CatagorySerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user) 
 class TaskViewSet(ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
@@ -30,3 +36,6 @@ class TaskViewSet(ModelViewSet):
     ordering_fields = ['due_date', 'priority']
     ordering = ['due_date']  
 
+  
+      
+      
