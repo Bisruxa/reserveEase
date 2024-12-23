@@ -136,5 +136,5 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 2
 }
 SIMPLE_JWT = {
-  "ACCESS_TLEN_LIFETIME": timedelta(minutes=10),
+  "ACCESS_TLEN_LIFETIME": timedelta(minutes=30),
 }

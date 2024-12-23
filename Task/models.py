@@ -24,11 +24,11 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
     email = models.EmailField(unique=True, max_length=255)
     username = models.CharField(max_length=255, unique=False, blank=True, null=True)
-
+    
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']  # Required fields for creating a superuser
-
+    REQUIRED_FIELDS = []  # Required fields for creating a superuser
     objects = UserManager()
+    
 
     def __str__(self):
         return self.email
