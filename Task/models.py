@@ -57,9 +57,10 @@ class Task(models.Model):
         (IN_PROGRESS, 'In Progress'),
         (COMPLETED, 'Completed'),
     ]
+    
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    Catagory = models.ForeignKey(Catagory, on_delete=models.SET_NULL, null=True,blank = True , related_name = 'tasks')
+    catagory = models.ForeignKey(Catagory, on_delete=models.SET_NULL, null=True,blank = True , related_name = 'tasks')
     title = models.CharField(max_length=255)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
