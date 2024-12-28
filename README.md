@@ -1,5 +1,34 @@
 # Task_management_API
-This is a web application built with Django for managing tasks. It allows users to create,read,update and delete different tasks.
+## Overview
+This is a web application built with Django for managing tasks. The application allows users to create, read, update, and delete tasks. The tasks can be categorized by priority, status, and due date, helping users prioritize which tasks to complete first.
+
+Users are required to authenticate using their email and password, and only authenticated users can interact with the tasks.
+
+## Features
+- **User Authentication:**
+  - Users can register and access tasks after authentication using JWT (JSON Web Tokens).
+  - Token-based authentication with `rest_framework_simplejwt`.
+- **Task Management:**
+  - Users can create tasks with fields like `status`, `priority`, and `due_date`.
+  - Users can read, update, and delete their own tasks.
+- **Task Filtering:**
+  - Users can filter tasks by `status`, `priority`, and `due_date`.
+- **User Profiles:**
+  - Users can retrieve their own profile at `/api/users/me/`.
+  
+## Endpoints
+### User Endpoints
+- **POST** `/api/auth/register/` - Register a new user.
+- **POST** `/api/token/` - Obtain a JWT token for authentication.
+- **GET** `/api/users/me/` - Retrieve the authenticated user's profile.
+
+### Task Endpoints
+- **POST** `/api/tasks/` - Create a new task.
+- **GET** `/api/tasks/` - Retrieve all tasks for the authenticated user.
+- **GET** `/api/tasks/{id}/` - Retrieve a specific task by ID.
+- **PUT** `/api/tasks/{id}/` - Update an existing task by ID.
+- **DELETE** `/api/tasks/{id}/` - Delete a task by ID.
+
 ## Prerequisites
 - Python 3.10 
 - pip (Python package installer)
