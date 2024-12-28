@@ -28,8 +28,8 @@ class UserProfileView(ModelViewSet):
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    
+    permission_classes = []
     
 class CatagoryViewSet(ModelViewSet):
     queryset = Catagory.objects.all()
