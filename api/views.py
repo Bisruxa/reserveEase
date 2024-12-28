@@ -3,22 +3,34 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.viewsets import ModelViewSet
 from django.contrib.auth import get_user_model
 from Task.models import Task,Catagory
-from .serializers import UserSerializer, TaskSerializer,CatagorySerializer
+from .serializers import UserSerializer, TaskSerializer,CatagorySerializer,UserProfileSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from .filters import TaskFilter
 from rest_framework import generics
+from rest_framework.response import Response
 
 User = get_user_model()
+
+class UserProfileView(ModelViewSet):
+    serializer_class = UserSerializer
+    authentication_classes = [JWTAuthentication]  # Ensures token authentication
+    permission_classes = [IsAuthenticated] 
+
+    def get(self, request, *args, **kwargs):
+        user = request.user  # Get the currently authenticated user
+        serializer = UserProfileSerializer(user)  # Serialize the user data
+        return Response(serializer.data)
+    def get_queryset(self):
+        # Only return the currently authenticated user
+        return User.objects.filter(id=self.request.user.id)
 
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-    def get_queryset(self):
-        # Only allow the user to see their own profile
-        return User.objects.filter(id=self.request.user.id)
+    
 class CatagoryViewSet(ModelViewSet):
     queryset = Catagory.objects.all()
     serializer_class = CatagorySerializer
