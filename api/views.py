@@ -16,6 +16,9 @@ class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        # Only allow the user to see their own profile
+        return User.objects.filter(id=self.request.user.id)
 class CatagoryViewSet(ModelViewSet):
     queryset = Catagory.objects.all()
     serializer_class = CatagorySerializer
@@ -23,6 +26,13 @@ class CatagoryViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     def perform_create(self, serializer):
         serializer.save(user=self.request.user) 
+    def get_queryset(self):
+        # Only allow the user to see their own categories
+        return Catagory.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        # Assign the category to the currently authenticated user
+        serializer.save(user=self.request.user)
 class TaskViewSet(ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
@@ -35,7 +45,13 @@ class TaskViewSet(ModelViewSet):
     # Specify default ordering (this is optional, but will help in case no sorting is passed)
     ordering_fields = ['due_date', 'priority']
     ordering = ['due_date']  
+    def get_queryset(self):
+        # Filter tasks to only those assigned to the current user
+        return Task.objects.filter(user=self.request.user)
 
+    def perform_create(self, serializer):
+        # Automatically assign the task to the logged-in user
+        serializer.save(user=self.request.user)
   
       
       

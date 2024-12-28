@@ -5,7 +5,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 router = DefaultRouter()
 
 # router.register(r'tasks', views.TaskViewSet, basename='task')
-router.register(r'users', UserViewSet, basename='user')
+router.register(r'auth/register', UserViewSet, basename='users')
 router.register(r'tasks', TaskViewSet, basename='task')
 router.register(r'catagories', CatagoryViewSet, basename='catagory')
 

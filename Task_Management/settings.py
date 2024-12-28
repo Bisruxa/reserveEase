@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'Task.apps.TaskConfig',
     'rest_framework',
     'api.apps.ApiConfig',
-    'django_filters'
+    'django_filters',
+    'rest_framework_simplejwt'
 ]
 
 MIDDLEWARE = [
@@ -137,6 +138,6 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 2
 }
 SIMPLE_JWT = {
-  "ACCESS_TLEN_LIFETIME": timedelta(minutes=30),
+  "ACCESS_TOKEN_LIFETIME": timedelta(minutes=40),
 }
 

@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password=None):
+    def create_user(self, email, password=None,username = None):
         if not email:
             raise ValueError('User must have an email address')
         user = self.model(email=self.normalize_email(email))
@@ -13,20 +13,21 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password=None):
-        user = self.create_user(email, password)
+    def create_superuser(self, email, password=None,username = None):
+        user = self.create_user(email, password,username)
         user.is_superuser = True
         user.is_staff = True
+        
         user.save(using=self._db)
         return user
 
 
 class User(AbstractUser):
     email = models.EmailField(unique=True, max_length=255)
-    username = models.CharField(max_length=255, unique=False, blank=True, null=True)
+    username = models.CharField(max_length=255, unique=False, blank=False)
     
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []  # Required fields for creating a superuser
+    REQUIRED_FIELDS = ['username']  # Required fields for creating a superuser
     objects = UserManager()
     
 
