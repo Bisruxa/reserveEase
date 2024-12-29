@@ -9,7 +9,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
    class Meta:
         model = User
-        fields = ['username', 'email']
+        fields = ['username', 'email','password']
+        extra_fields = {'password': {'write_only': True}}
+   def create(self,validated_date):
+        password = validated_date.pop('password',None)
+        user = super().create(validated_date)
+        if password:
+            user.set_password(password)
+            user.save()
+        return user
 class CatagorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Catagory 
