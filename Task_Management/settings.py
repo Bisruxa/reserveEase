@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import dj_database_url
-import os
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,9 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-zmc+wwwibjkzp-2(4@3*asgz$bjz5$24uq0%j16gnd00k#araa'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', False).lower() == "true"
+DEBUG = True
 
-ALLOWED_HOSTS = os.environ.get['ALLOWED_HOSTS'].split(" ")
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -141,4 +140,3 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
   "ACCESS_TOKEN_LIFETIME": timedelta(minutes=40),
 }
-
