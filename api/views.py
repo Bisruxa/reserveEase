@@ -1,27 +1,27 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.viewsets import ModelViewSet
-# from django.contrib.auth import get_user_model
 from Task.models import Task
-from .serializers import UserSerializer, TaskSerializer,UserProfileSerializer
+from .serializers import UserSerializer, TaskSerializer
 from rest_framework.response import Response
 from Task.models import User
 from django.utils import timezone
 from rest_framework import status
-# User = get_user_model()
+from django.core.exceptions import ValidationError
 
-class UserProfileView(ModelViewSet):
-    serializer_class = UserSerializer
-    authentication_classes = [JWTAuthentication]  # Ensures token authentication
-    permission_classes = [IsAuthenticated] 
 
-    def get(self, request, *args, **kwargs):
-        user = request.user  # Get the currently authenticated user
-        serializer = UserProfileSerializer(user)  # Serialize the user data
-        return Response(serializer.data)
-    def get_queryset(self):
-        # Only return the currently authenticated user
-        return User.objects.filter(id=self.request.user.id)
+# class UserProfileView(ModelViewSet):
+#     serializer_class = UserSerializer
+#     authentication_classes = [JWTAuthentication]  # Ensures token authentication
+#     permission_classes = [IsAuthenticated] 
+
+#     def get(self, request, *args, **kwargs):
+#         user = request.user  # Get the currently authenticated user
+#         serializer = UserProfileSerializer(user)  # Serialize the user data
+#         return Response(serializer.data)
+#     def get_queryset(self):
+#         # Only return the currently authenticated user
+#         return User.objects.filter(id=self.request.user.id)
 
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()

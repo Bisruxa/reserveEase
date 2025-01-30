@@ -58,7 +58,7 @@ class Task(models.Model):
     def __str__(self):
         return f"Reservation for {self.user.email} on {self.date}"
 
-    def clean(self):  # Validate that the due_date is in the future
+    def clean(self):  # Validate that the due_date is in the future and no existing reservation happens
         existing_reservation = Task.objects.filter(
             reservation_date=self.reservation_date,
             size=self.size
