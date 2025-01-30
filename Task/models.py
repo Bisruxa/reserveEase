@@ -35,44 +35,28 @@ class User(AbstractUser):
     def __str__(self):
         return self.email
 
-class Catagory(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-    user= models.ForeignKey(User, on_delete=models.CASCADE)
-
-    def __str__(self):  
-        return self.name
 class Task(models.Model):
-    LOW = 'Low'
+    SMALL = 'Small'
     MEDIUM = 'Medium'
-    HIGH = 'High'
-    PRIORITY_CHOICES = [
-        (LOW, 'Low'),
+    LARGE = 'Large'
+    SIZE_CHOICES = [
+        (SMALL, 'Small'),
         (MEDIUM, 'Medium'),
-        (HIGH, 'High'),
-    ]  
-    
-    PENDING = 'Pending'
-    IN_PROGRESS = 'In Progress'
-    COMPLETED = 'Completed'
-    STATUS_CHOICES = [
-        (PENDING, 'Pending'),
-        (IN_PROGRESS, 'In Progress'),
-        (COMPLETED, 'Completed'),
+        (LARGE, 'Large'),
     ]
     
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    catagory = models.ForeignKey(Catagory, on_delete=models.SET_NULL, null=True,blank = True , related_name = 'tasks')
-    title = models.CharField(max_length=255)
+    size = models.CharField(max_length=6, choices=SIZE_CHOICES, default=SMALL)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     due_date = models.DateTimeField()  # Default as a function
-    priority = models.CharField(max_length=6, choices=PRIORITY_CHOICES, default=LOW)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PENDING)
+    
+    
 
     def __str__(self):
-        return self.title
+        return f"Reservation for {self.user.email} on {self.date}"
 
     def clean(self):  # Validate that the due_date is in the future
         if timezone.is_naive(self.due_date):
@@ -85,8 +69,3 @@ class Task(models.Model):
         self.clean()  # Ensure clean validation is called before saving
         super().save(*args, **kwargs)
 
-    def set_status(self, new_status):
-        if self.status == self.COMPLETED and new_status != self.COMPLETED:
-            raise ValidationError("Completed tasks cannot be changed to another status.")
-        self.status = new_status
-        self.save()

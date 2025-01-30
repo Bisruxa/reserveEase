@@ -1,8 +1,8 @@
 # Task_management_API
 ## Overview
-This is a web application built with Django for managing tasks. The application allows users to create, read, update, and delete tasks. The tasks can be categorized by priority, status, and due date, helping users prioritize which tasks to complete first.
+This is a web application built with Django for managing tasks. The application allows users to reserve spots in a resturant.
 
-Users are required to authenticate using their email and password, and only authenticated users can interact with the tasks.
+Users are required to authenticate using their email and password, and only authenticated users can interact with the website.
 
 ## Features
 - **User Authentication:**

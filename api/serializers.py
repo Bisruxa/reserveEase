@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Task.models import Task,Catagory,User
+from Task.models import Task,User
 # from django.contrib.auth import get_user_model
 # User = get_user_model()
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -18,13 +18,8 @@ class UserSerializer(serializers.ModelSerializer):
             user.set_password(password)
             user.save()
         return user
-class CatagorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Catagory 
-        fields= ['id','name']       
 class TaskSerializer(serializers.ModelSerializer):
-    catagory = CatagorySerializer(read_only=True)
-    catagory_id = serializers.PrimaryKeyRelatedField(queryset=Catagory.objects.all(), source='catagory', write_only=True)
+    
     user = serializers.PrimaryKeyRelatedField( read_only=True)
     class Meta:
         model = Task
