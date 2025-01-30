@@ -4,13 +4,10 @@ from rest_framework.viewsets import ModelViewSet
 # from django.contrib.auth import get_user_model
 from Task.models import Task
 from .serializers import UserSerializer, TaskSerializer,UserProfileSerializer
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
-from .filters import TaskFilter
-from rest_framework import generics
 from rest_framework.response import Response
 from Task.models import User
-
+from django.utils import timezone
+from rest_framework import status
 # User = get_user_model()
 
 class UserProfileView(ModelViewSet):
@@ -31,40 +28,36 @@ class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
     
     permission_classes = []
-    
-# class CatagoryViewSet(ModelViewSet):
-#     queryset = Catagory.objects.all()
-#     serializer_class = CatagorySerializer
-#     authentication_classes = [JWTAuthentication]
-#     permission_classes = [IsAuthenticated]
-#     def perform_create(self, serializer):
-#         serializer.save(user=self.request.user) 
-#     def get_queryset(self):
-#         # Only allow the user to see their own categories
-#         return Catagory.objects.filter(user=self.request.user)
-
-    def perform_create(self, serializer):
-        # Assign the category to the currently authenticated user
-        serializer.save(user=self.request.user)
 class TaskViewSet(ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
    
-    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
-    filterset_class = TaskFilter
+    def list(self, request, *args, **kwargs):
+        """List available reservations."""
+        reservations = Task.objects.filter(reservation_date__gte=timezone.now())
+        serializer = self.get_serializer(reservations, many=True)
+        return Response(serializer.data)
 
-    # Specify default ordering (this is optional, but will help in case no sorting is passed)
-    ordering_fields = ['due_date', 'priority']
-    ordering = ['due_date']  
-    def get_queryset(self):
-        # Filter tasks to only those assigned to the current user
-        return Task.objects.filter(user=self.request.user)
+    def create(self, request, *args, **kwargs):
+        """Create a new reservation."""
+        # Check if the user is authenticated
+        if not request.user.is_authenticated:
+            return Response({"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
 
-    def perform_create(self, serializer):
-        # Automatically assign the task to the logged-in user
-        serializer.save(user=self.request.user)
+        data = request.data.copy()
+        data['user'] = request.user.id  # Attach current user to the reservation
+
+        serializer = self.get_serializer(data=data)
+        if serializer.is_valid():
+            # Ensure reservation does not conflict
+            try:
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except ValidationError as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   
       
       

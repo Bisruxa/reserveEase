@@ -51,7 +51,7 @@ class Task(models.Model):
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    due_date = models.DateTimeField()  # Default as a function
+    reservation_date = models.DateTimeField()  # Default as a function
     
     
 
@@ -59,11 +59,17 @@ class Task(models.Model):
         return f"Reservation for {self.user.email} on {self.date}"
 
     def clean(self):  # Validate that the due_date is in the future
-        if timezone.is_naive(self.due_date):
-            self.due_date = timezone.make_aware(self.due_date, timezone.get_current_timezone())
+        existing_reservation = Task.objects.filter(
+            reservation_date=self.reservation_date,
+            size=self.size
+        ).exclude(id=self.id)
+        
+        if existing_reservation.exists():
+            raise ValidationError("This reservation conflicts with an existing reservation.")
 
-        if self.due_date <= timezone.now():
-            raise ValidationError("Due date must be in the future")
+        if self.reservation_date <= timezone.now():
+            raise ValidationError("Reservation date must be in the future.")
+
 
     def save(self, *args, **kwargs):
         self.clean()  # Ensure clean validation is called before saving

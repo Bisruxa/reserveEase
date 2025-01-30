@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from Task.models import Task,User
-# from django.contrib.auth import get_user_model
-# User = get_user_model()
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -24,10 +23,10 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = "__all__"
-    def validate_status(self, value):
-        task = self.instance
-        if task and task.status == Task.COMPLETED and value != Task.COMPLETED:
-            raise serializers.ValidationError("Completed tasks cannot be changed to another status unless reverted to incomplete.")
+    def validate_reservation_date(self, value):
+        # Ensure reservation date is in the future
+        if value <= timezone.now():
+            raise serializers.ValidationError("Reservation date must be in the future.")
         return value
 
    
