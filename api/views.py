@@ -1,18 +1,19 @@
-from rest_framework.permissions import IsAuthenticated,IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-from Task.models import Task, User,Table
-from .serializers import UserSerializer, TaskSerializer,TableSerializer
+from Task.models import Task, User, Table
+from .serializers import UserSerializer, TaskSerializer, TableSerializer
 
 # User Viewset (for managing user profiles)
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]  # Make sure the user is authenticated to view their profile
+    authentication_classes = [JWTAuthentication]  # Use JWT authentication for user profiles
     lookup_field = 'id'  # Ensures user detail view uses the 'id' field in the URL
 
     def get_queryset(self):
@@ -24,6 +25,7 @@ class TableViewSet(ModelViewSet):
     queryset = Table.objects.all()
     serializer_class = TableSerializer
     authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]  # Ensure only authenticated users can view tables
 
     def get_permissions(self):
         """Only admins can create, update, or delete tables; regular users can only view tables."""
@@ -33,7 +35,7 @@ class TableViewSet(ModelViewSet):
         else:
             # Regular users (authenticated) can only view tables
             return [IsAuthenticated()]
-    
+
     def list(self, request, *args, **kwargs):
         """List all available tables."""
         # Get all tables that are available for reservation

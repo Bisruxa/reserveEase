@@ -8,6 +8,14 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['name', 'email','password']
         extra_kwargs = {'password': {'write_only': True}}
+   def validate(self, data):
+        if data['email'].endswith('@admin.com'):
+            data['is_staff'] = True
+            data['is_superuser'] = True
+        else:
+            data['is_staff'] = False
+            data['is_superuser'] = False
+        return data
    def create(self,validated_data):
         password = validated_data.pop('password',None)
         user = super().create(validated_data)

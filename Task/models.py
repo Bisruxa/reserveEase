@@ -6,20 +6,31 @@ from django.contrib.auth.hashers import make_password
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password=None,username = None):
+    def create_user(self, email, name, password=None):
         if not email:
             raise ValueError('User must have an email address')
-        user = self.model(email=self.normalize_email(email))
+        if not name:
+            raise ValueError('User must have a name')
+
+        user = self.model(
+            email=self.normalize_email(email),
+            name=name,
+        )
         user.set_password(password)
-        user.save(using=self._db)
         user.is_active = True 
+        user.is_staff = False
+        user.is_superuser = False
+        user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password=None,name=None):
-        user = self.create_user(email, password,name)
+    def create_superuser(self, email, name, password=None):
+        user = self.create_user(
+            email=self.normalize_email(email),
+            name=name,
+            password=password,
+        )
         user.is_superuser = True
         user.is_staff = True
-        
         user.save(using=self._db)
         return user
 
@@ -27,19 +38,24 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
     email = models.EmailField(unique=True, max_length=255)
     name = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']  # Required fields for creating a superuser
+
     objects = UserManager()
-    
-    
-
-
-
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
         self._password = None
+
+    def save(self, *args, **kwargs):
+        if self.password is not None and not self.password.startswith('pbkdf2_sha256$'):
+            self.set_password(self.password)
+        super().save(*args, **kwargs)
     def __str__(self):
         return self.email
+
+
 class Table(models.Model):
     table_id = models.AutoField(primary_key=True) 
     capacity = models.IntegerField()  
@@ -48,6 +64,8 @@ class Table(models.Model):
 
     def __str__(self):
         return f"Table {self.table_id} (Capacity: {self.capacity}) - {self.status}"
+
+
 class Task(models.Model):
     SMALL = 'Small'
     MEDIUM = 'Medium'
@@ -70,8 +88,7 @@ class Task(models.Model):
     
 
     def __str__(self):
-        
-        return f"Reservation for {self.user.email} on {self.date}"
+        return f"Reservation for {self.user.email} on {self.reservation_date}"
 
     def clean(self):  # Validate that the due_date is in the future and no existing reservation
         existing_reservation = Task.objects.filter(
@@ -85,8 +102,6 @@ class Task(models.Model):
         if self.reservation_date <= timezone.now():
             raise ValidationError("Reservation date must be in the future.")
 
-
     def save(self, *args, **kwargs):
-        self.clean()  # Ensure clean validation is called before saving
+        self.clean()
         super().save(*args, **kwargs)
-
