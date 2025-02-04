@@ -5,8 +5,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-from Task.models import Task, User, Table
-from .serializers import UserSerializer, TaskSerializer, TableSerializer
+from Task.models import Task, User, Table,Reservation
+from .serializers import UserSerializer, TaskSerializer, TableSerializer,ReservationSerializer
+from rest_framework.decorators import action
 
 # User Viewset (for managing user profiles)
 class UserViewSet(ModelViewSet):
@@ -57,24 +58,51 @@ class TaskViewSet(ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
-        """Create a reservation (task)."""
-        # Ensure user can only make reservations on available tables
-        data = request.data.copy()  # Use copy to avoid modifying the original request.data
-        data['user'] = request.user.id  # Attach authenticated user's ID to the reservation
+        try:
+            # Ensure user can only make reservations on available tables
+            data = request.data.copy()  
+            data['user'] = request.user.id  
+    
+            # Check if the table is available for the reservation
+            table_id = data.get('table')
+            if table_id is None:
+                return Response({"error": "Table field is required"}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                table = Table.objects.get(table_id=table_id)
+            except Table.DoesNotExist:
+                return Response({"error": "Invalid table ID"}, status=status.HTTP_400_BAD_REQUEST)
+            if not table.availability:
+                return Response({"error": "This table is not available for reservation."}, status=status.HTTP_400_BAD_REQUEST)
+    
+            # Proceed with reservation creation
+            serializer = self.get_serializer(data=data)
+            if serializer.is_valid():
+                serializer.save()  # Save the reservation (task)
+                # Mark the table as reserved by updating its availability
+                table.availability = False
+                table.status = 'Reserved'
+                table.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        # Check if the table is available for the reservation
-        table = Table.objects.get(id=data['table'])
-        if not table.availability:
-            return Response({"error": "This table is not available for reservation."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Proceed with reservation creation
-        serializer = self.get_serializer(data=data)
-        if serializer.is_valid():
-            serializer.save()  # Save the reservation (task)
-            # Mark the table as reserved by updating its availability
-            table.availability = False
-            table.status = 'Reserved'
-            table.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class ReservationViewSet(ModelViewSet):
+    queryset = Reservation.objects.all()
+    serializer_class = ReservationSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    @action(detail=True, methods=['post'])
+    def cancel(self, request, pk=None):
+        reservation = self.get_object()
+        reservation.status = 'Canceled'
+        reservation.save()
+        return Response({"status": "Reservation canceled"})
+    @action(detail=True, methods=['post'])
+    def update_reservation(self, request, pk=None):
+        reservation = self.get_object()
+        reservation.reservation_date = request.data.get('reservation_date')
+        reservation.table = request.data.get('table')
+        reservation.save()
+        return Response({"status": "Reservation updated"})

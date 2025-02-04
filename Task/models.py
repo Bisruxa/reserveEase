@@ -105,3 +105,11 @@ class Task(models.Model):
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
+class Reservation(models.Model):
+    customer_name = models.CharField(max_length=255)
+    reservation_date = models.DateTimeField()
+    table = models.ForeignKey(Table, on_delete=models.SET_NULL,null=True)
+    status = models.CharField(max_length=50,default='Available')
+
+    def __str__(self):
+        return f"reservation fro {self.customer_name} on {self.reservation_date}"

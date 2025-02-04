@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Task.models import Task,User,Table
+from Task.models import Task,User,Table,Reservation
 from django.utils import timezone
 
 
@@ -48,3 +48,8 @@ class TaskSerializer(serializers.ModelSerializer):
         user = self.context['request'].user  # Assuming you're using DRF's request context
         validated_data['user'] = user
         return super().create(validated_data)
+class ReservationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reservation
+        fields = ['id','customer_name','reservation_date','table','status']
+
