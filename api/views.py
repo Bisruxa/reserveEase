@@ -1,4 +1,4 @@
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
@@ -13,7 +13,7 @@ from rest_framework.decorators import action
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]  # Make sure the user is authenticated to view their profile
+    permission_classes = [AllowAny]  # Make sure the user is authenticated to view their profile
     authentication_classes = [JWTAuthentication]  # Use JWT authentication for user profiles
     lookup_field = 'id'  # Ensures user detail view uses the 'id' field in the URL
 
