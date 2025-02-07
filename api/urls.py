@@ -1,7 +1,7 @@
 from rest_framework.routers import DefaultRouter
 from django.urls import path
-from .views import UserViewSet, TaskViewSet, TableViewSet,ReservationViewSet  
-from rest_framework_simplejwt.views import TokenObtainPairView
+from .views import UserViewSet, TaskViewSet, TableViewSet,ReservationViewSet
+from .views import SigninView
 
 
 router = DefaultRouter()
@@ -14,7 +14,7 @@ router.register(r'reservations',ReservationViewSet)
 
 # Define the URL patterns
 urlpatterns = [
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'), 
+    path('auth/signin/', SigninView.as_view(), name='signin'), 
 ]
 
 # Add the router-generated URLs
