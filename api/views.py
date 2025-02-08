@@ -13,9 +13,8 @@ from rest_framework.decorators import action
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]  # Make sure the user is authenticated to view their profile
-    authentication_classes = [JWTAuthentication]  # Use JWT authentication for user profiles
-    lookup_field = 'id'  # Ensures user detail view uses the 'id' field in the URL
+    authentication_classes = [JWTAuthentication] 
+    lookup_field = 'id'  
 
     def get_queryset(self):
         # Only return the currently authenticated user
