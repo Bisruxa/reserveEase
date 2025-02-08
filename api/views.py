@@ -1,25 +1,51 @@
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.views import APIView
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from Task.models import Task, User, Table,Reservation
 from .serializers import UserSerializer, TaskSerializer, TableSerializer,ReservationSerializer
 from rest_framework.decorators import action
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
 # User Viewset (for managing user profiles)
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    authentication_classes = [JWTAuthentication] 
-    lookup_field = 'id'  
+    permission_classes = [AllowAny]  # Make sure the user is authenticated to view their profile
+    authentication_classes = [JWTAuthentication]  # Use JWT authentication for user profiles
+    lookup_field = 'id'  # Ensures user detail view uses the 'id' field in the URL
 
     def get_queryset(self):
         # Only return the currently authenticated user
         return User.objects.filter(id=self.request.user.id)
+    
+    
+class SigninView(APIView):
+    permission_classes = [AllowAny]  
 
+    def post(self, request):
+        email = request.data.get("email")
+        password = request.data.get("password")
+
+        if not email or not password:
+            return Response({"error": "Email and password are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = authenticate(request, username=email, password=password)
+        if user is None:
+            return Response({"error": "Invalid email or password."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        refresh = RefreshToken.for_user(user)
+        return Response(
+            {"refresh": str(refresh), "access": str(refresh.access_token), "message": "Login successful."},
+            status=status.HTTP_200_OK,
+        )
+        
+        
 # Task Viewset (for managing task reservations)
 class TableViewSet(ModelViewSet):
     queryset = Table.objects.all()

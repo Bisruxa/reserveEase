@@ -36,14 +36,17 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
+    username = None 
     email = models.EmailField(unique=True, max_length=255)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']  # Required fields for creating a superuser
 
     objects = UserManager()
+    
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
         self._password = None
@@ -52,8 +55,10 @@ class User(AbstractUser):
         if self.password is not None and not self.password.startswith('pbkdf2_sha256$'):
             self.set_password(self.password)
         super().save(*args, **kwargs)
+
     def __str__(self):
         return self.email
+
 
 
 class Table(models.Model):
