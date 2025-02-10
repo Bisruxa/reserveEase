@@ -24,7 +24,29 @@ class UserViewSet(ModelViewSet):
         # Only return the currently authenticated user
         return User.objects.filter(id=self.request.user.id)
     
-    
+    def create(self, request, *args, **kwargs):
+        # Get user data from the request body
+        username = request.data.get('username')
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        if not username or not email or not password:
+            return Response({"error": "Username, email, and password are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if email already exists
+        if User.objects.filter(email=email).exists():
+            return Response({"error": "Email already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Create user and hash password
+            user = User.objects.create_user(username=username, email=email, password=password)
+
+            # Return success response with user data
+            return Response({"message": "User registered successfully."}, status=status.HTTP_201_CREATED)
+        
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class SigninView(APIView):
     permission_classes = [AllowAny]  
 
