@@ -4,28 +4,30 @@ from django.utils import timezone
 
 
 class UserSerializer(serializers.ModelSerializer):
-   class Meta:
+    class Meta:
         model = User
-        fields = ['name', 'email','password']
-        extra_kwargs = {'password': {'write_only': True}}
-   def validate(self, data):
-        if data['email'].endswith('@admin.com'):
-            data['is_staff'] = True
-            data['is_superuser'] = True
-        else:
-            data['is_staff'] = False
-            data['is_superuser'] = False
-        return data
-   def create(self,validated_data):
-        password = validated_data.pop('password',None)
-        user = super().create(validated_data)
-        user.set_password(password)
-        user.save()
-        return user
-   def validate_password(self, value):
+        fields = ['first_name', 'email', 'password']  # Include first_name instead of 'name'
+        extra_kwargs = {'password': {'write_only': True}}  # Make password write-only for security
+
+    def validate_password(self, value):
+        """Ensure the password is strong enough."""
         if len(value) < 8:
             raise serializers.ValidationError('Password must be at least 8 characters long')
         return value
+
+    def create(self, validated_data):
+        """Hash the password and create a new user."""
+        password = validated_data.pop('password', None)  # Remove password before saving user
+        user = super().create(validated_data)  # Create the user instance
+        user.set_password(password)  # Hash the password before saving
+        user.save()  # Save the user instance
+        return user
+
+    def validate(self, data):
+        """You can perform any additional validation for email or name here if necessary."""
+        if not data.get('email'):
+            raise serializers.ValidationError("Email is required")
+        return data
 class TableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Table
