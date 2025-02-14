@@ -1,6 +1,6 @@
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet,ViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -9,9 +9,11 @@ from django.core.exceptions import ValidationError
 from Task.models import Task, User, Table,Reservation
 from .serializers import UserSerializer, TaskSerializer, TableSerializer,ReservationSerializer
 from rest_framework.decorators import action
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate,login
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from django.http import JsonResponse
+from rest_framework.decorators import api_view
+from django.contrib.auth.hashers import make_password
 
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()

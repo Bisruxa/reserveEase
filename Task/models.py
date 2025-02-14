@@ -118,3 +118,4 @@ class Reservation(models.Model):
 
     def __str__(self):
         return f"reservation fro {self.customer_name} on {self.reservation_date}"
+
