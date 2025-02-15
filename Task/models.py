@@ -83,7 +83,7 @@ class Task(models.Model):
     
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    table = models.ForeignKey(Table, on_delete=models.CASCADE, default=1)
+    table = models.ForeignKey(Table, on_delete=models.CASCADE)
     size = models.CharField(max_length=6, choices=SIZE_CHOICES, default=SMALL)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
