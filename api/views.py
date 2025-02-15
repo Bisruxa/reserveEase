@@ -1,20 +1,18 @@
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.viewsets import ModelViewSet,ViewSet
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from django.utils import timezone
-from django.core.exceptions import ValidationError
 from Task.models import Task, User, Table,Reservation
 from .serializers import UserSerializer, TaskSerializer, TableSerializer,ReservationSerializer
 from rest_framework.decorators import action
-from django.contrib.auth import authenticate,login
+from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.http import JsonResponse
-from rest_framework.decorators import api_view
-from django.contrib.auth.hashers import make_password
 
+
+# User Viewset (for managing user profiles)
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -25,34 +23,8 @@ class UserViewSet(ModelViewSet):
     def get_queryset(self):
         # Only return the currently authenticated user
         return User.objects.filter(id=self.request.user.id)
-
-    def create(self, request, *args, **kwargs):
-        """
-        Create a new user by accepting first_name, email, and password.
-        """
-        first_name = request.data.get('first_name')
-        email = request.data.get('email')
-        password = request.data.get('password')
-
-        if not first_name or not email or not password:
-            return Response({"error": "First name, email, and password are required."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Check if email already exists
-        if User.objects.filter(email=email).exists():
-            return Response({"error": "Email already exists."}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            # Use the serializer to create the user
-            user_serializer = UserSerializer(data=request.data)
-            if user_serializer.is_valid():
-                user_serializer.save()
-                return Response({"message": "User registered successfully."}, status=status.HTTP_201_CREATED)
-            else:
-                return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
+    
+    
 class SigninView(APIView):
     permission_classes = [AllowAny]  
 
@@ -72,8 +44,7 @@ class SigninView(APIView):
             {"refresh": str(refresh), "access": str(refresh.access_token), "message": "Login successful."},
             status=status.HTTP_200_OK,
         )
-        
-        
+
 # Task Viewset (for managing task reservations)
 class TableViewSet(ModelViewSet):
     queryset = Table.objects.all()

@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
 from django.urls import path
-from .views import UserViewSet, TaskViewSet, TableViewSet,ReservationViewSet
+from .views import UserViewSet, TaskViewSet, TableViewSet
 from .views import SigninView
 
 
