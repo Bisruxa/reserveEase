@@ -80,7 +80,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Task_Management.wsgi.application'
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Allow React frontend
+    "http://localhost:5173",
+    "https://reserve-ease-snowy.vercel.app"   # Allow React frontend
 ]
 
 CORS_ALLOW_CREDENTIALS = True
